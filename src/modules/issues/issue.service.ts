@@ -112,3 +112,24 @@ export const getAllIssues = async (query: IssueQuery) => {
     };
   });
 };
+export const getIssueById = async (id: number) => {
+  const result = await pool.query(`SELECT * FROM issues WHERE id=$1`, [id]);
+
+  if (!result.rows.length) {
+    throw new AppError("Issue not found", 404);
+  }
+
+  const issue = result.rows[0];
+
+  const userRes = await pool.query(
+    `SELECT id, name, role FROM users WHERE id=$1`,
+    [issue.reporter_id],
+  );
+
+  const { reporter_id, ...issueData } = issue;
+
+  return {
+    ...issueData,
+    reporter: userRes.rows[0] ?? null,
+  };
+};
