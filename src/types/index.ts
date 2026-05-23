@@ -1,6 +1,16 @@
+import type { Request } from "express";
+
+export type ROLES = "contributor" | "maintainer";
+
 export const USER_ROLE = {
-  MAINTAINER: "maintainer",
   CONTRIBUTOR: "contributor",
+  MAINTAINER: "maintainer",
 } as const;
 
-export type ROLES = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+export interface AuthRequest extends Request {
+  user?: {
+    id: number;
+    name: string;
+    role: ROLES;
+  };
+}
