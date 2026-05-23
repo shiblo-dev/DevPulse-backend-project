@@ -55,3 +55,60 @@ export const createIssue = async (user: User, body: CreateIssueBody) => {
 
   return result.rows[0];
 };
+export const getAllIssues = async (query: IssueQuery) => {
+  if (query.type && !["bug", "feature_request"].includes(query.type)) {
+    throw new AppError("Invalid type filter", 400);
+  }
+
+  if (
+    query.status &&
+    !["open", "in_progress", "resolved"].includes(query.status)
+  ) {
+    throw new AppError("Invalid status filter", 400);
+  }
+  let sql = `SELECT * FROM issues`;
+  const values: (string | number)[] = [];
+  const conditions: string[] = [];
+
+  if (query.type) {
+    values.push(query.type);
+    conditions.push(`type = $${values.length}`);
+  }
+
+  if (query.status) {
+    values.push(query.status);
+    conditions.push(`status = $${values.length}`);
+  }
+
+  if (conditions.length) {
+    sql += ` WHERE ` + conditions.join(" AND ");
+  }
+
+  sql +=
+    query.sort === "oldest"
+      ? ` ORDER BY created_at ASC`
+      : ` ORDER BY created_at DESC`;
+
+  const result = await pool.query(sql, values);
+  const issues = result.rows;
+
+  const reporterIds = issues.map((i) => i.reporter_id);
+
+  let usersMap = new Map();
+
+  if (reporterIds.length > 0) {
+    const usersRes = await pool.query(
+      `SELECT id, name, role FROM users WHERE id = ANY($1)`,
+      [reporterIds],
+    );
+    usersMap = new Map(usersRes.rows.map((u) => [u.id, u]));
+  }
+
+  return issues.map((issue) => {
+    const { reporter_id, password, ...issueData } = issue;
+    return {
+      ...issueData,
+      reporter: usersMap.get(reporter_id) ?? null,
+    };
+  });
+};
