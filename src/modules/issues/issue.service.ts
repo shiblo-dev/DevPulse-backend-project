@@ -133,3 +133,49 @@ export const getIssueById = async (id: number) => {
     reporter: userRes.rows[0] ?? null,
   };
 };
+export const updateIssue = async (
+  id: number,
+  user: User,
+  body: UpdateIssueBody,
+) => {
+  const issueRes = await pool.query(`SELECT * FROM issues WHERE id=$1`, [id]);
+
+  if (!issueRes.rows.length) {
+    throw new AppError("Issue not found", 404);
+  }
+
+  const issue = issueRes.rows[0];
+
+  if (user.role === "contributor") {
+    if (issue.reporter_id !== user.id) {
+      throw new AppError("You can only update your own issue", 403);
+    }
+    if (issue.status !== "open") {
+      throw new AppError("Only open issues can be updated", 409);
+    }
+  }
+
+  if (body.type && !["bug", "feature_request"].includes(body.type)) {
+    throw new AppError("Type must be bug or feature_request", 400);
+  }
+
+  const updated = await pool.query(
+    `UPDATE issues
+     SET title=$1,
+         description=$2,
+         type=$3,
+         status=$4,
+         updated_at=NOW()
+     WHERE id=$5
+     RETURNING *`,
+    [
+      body.title ?? issue.title,
+      body.description ?? issue.description,
+      body.type ?? issue.type,
+      user.role === "maintainer" ? (body.status ?? issue.status) : issue.status,
+      id,
+    ],
+  );
+
+  return updated.rows[0];
+};
