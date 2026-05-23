@@ -179,3 +179,16 @@ export const updateIssue = async (
 
   return updated.rows[0];
 };
+
+export const deleteIssue = async (id: number, user: User) => {
+  const result = await pool.query(
+    `DELETE FROM issues WHERE id=$1 RETURNING *`,
+    [id],
+  );
+
+  if (!result.rows.length) {
+    throw new AppError("Issue not found", 404);
+  }
+
+  return result.rows[0];
+};
