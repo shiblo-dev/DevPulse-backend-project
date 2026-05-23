@@ -5,9 +5,9 @@ import express, {
 } from "express";
 import cors from "cors";
 
-import globalErrorHandler from "./middleware/globalErrorHandler";
-import { authRoute } from "./modules/auth/auth.route";
-import { issueRoutes } from "./modules/issues/issue.route";
+import globalErrorHandler from "./middleware/globalErrorHandler.js";
+import { authRoute } from "./modules/auth/auth.route.js";
+import { issueRoutes } from "./modules/issues/issue.route.js";
 
 const app: Application = express();
 
