@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import config from "../config";
+import config from "../config/index.js";
 
 const globalErrorHandler = (
   err: Error & { statusCode?: number },
