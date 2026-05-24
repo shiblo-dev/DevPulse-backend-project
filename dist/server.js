@@ -1,36 +1,20 @@
-"use strict";
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
+
+
+   import { createRequire } from 'module';
+
+   const require = createRequire(import.meta.url);
+
+  
 
 // src/app.ts
-var import_express3 = __toESM(require("express"), 1);
-var import_cors = __toESM(require("cors"), 1);
+import express from "express";
+import cors from "cors";
 
 // src/config/index.ts
-var import_dotenv = __toESM(require("dotenv"), 1);
-var import_path = __toESM(require("path"), 1);
-import_dotenv.default.config({
-  path: import_path.default.join(process.cwd(), ".env")
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({
+  path: path.join(process.cwd(), ".env")
 });
 if (!process.env.CONNECTIONSTRING) {
   throw new Error("CONNECTIONSTRING is not defined in .env");
@@ -59,15 +43,15 @@ var globalErrorHandler = (err, req, res, _next) => {
 var globalErrorHandler_default = globalErrorHandler;
 
 // src/modules/auth/auth.route.ts
-var import_express = require("express");
+import { Router } from "express";
 
 // src/modules/auth/auth.service.ts
-var import_bcryptjs = __toESM(require("bcryptjs"), 1);
-var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 // src/db/index.ts
-var import_pg = require("pg");
-var pool = new import_pg.Pool({
+import { Pool } from "pg";
+var pool = new Pool({
   connectionString: config_default.connection_string
 });
 var initDB = async () => {
@@ -123,7 +107,7 @@ var registerUserIntoDB = async (payload) => {
   if (isUserExists.rows.length > 0) {
     throw new AppError_default("User already exists!", 409);
   }
-  const hashedPassword = await import_bcryptjs.default.hash(password, SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
   const result = await pool.query(
     `INSERT INTO users (name, email, password, role)
      VALUES ($1, $2, $3, $4)
@@ -141,7 +125,7 @@ var loginUserIntoDB = async (payload) => {
     throw new AppError_default("User not found", 404);
   }
   const user = userData.rows[0];
-  const matchPassword = await import_bcryptjs.default.compare(password, user.password);
+  const matchPassword = await bcrypt.compare(password, user.password);
   if (!matchPassword) {
     throw new AppError_default("Invalid credentials", 401);
   }
@@ -151,7 +135,7 @@ var loginUserIntoDB = async (payload) => {
     role: user.role,
     email: user.email
   };
-  const token = import_jsonwebtoken.default.sign(jwtPayload, config_default.secret, { expiresIn: "1d" });
+  const token = jwt.sign(jwtPayload, config_default.secret, { expiresIn: "1d" });
   return {
     token,
     user: {
@@ -203,16 +187,16 @@ var authController = {
 };
 
 // src/modules/auth/auth.route.ts
-var router = (0, import_express.Router)();
+var router = Router();
 router.post("/signup", authController.registerUser);
 router.post("/login", authController.loginUser);
 var authRoute = router;
 
 // src/modules/issues/issue.route.ts
-var import_express2 = require("express");
+import { Router as Router2 } from "express";
 
 // src/middleware/auth.ts
-var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"), 1);
+import jwt2 from "jsonwebtoken";
 var auth = (...roles) => {
   return async (req, res, next) => {
     try {
@@ -224,7 +208,7 @@ var auth = (...roles) => {
         });
       }
       const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : authHeader;
-      const decoded = import_jsonwebtoken2.default.verify(token, config_default.secret);
+      const decoded = jwt2.verify(token, config_default.secret);
       if (roles.length && !roles.includes(decoded.role)) {
         return res.status(403).json({
           success: false,
@@ -472,7 +456,7 @@ var deleteIssue2 = async (req, res, next) => {
 };
 
 // src/modules/issues/issue.route.ts
-var router2 = (0, import_express2.Router)();
+var router2 = Router2();
 router2.get("/", getAllIssues2);
 router2.get("/:id", getIssueById2);
 router2.post("/", auth_default(USER_ROLE.CONTRIBUTOR, USER_ROLE.MAINTAINER), createIssue2);
@@ -481,14 +465,14 @@ router2.delete("/:id", auth_default(USER_ROLE.MAINTAINER), deleteIssue2);
 var issueRoutes = router2;
 
 // src/app.ts
-var app = (0, import_express3.default)();
+var app = express();
 app.use(
-  (0, import_cors.default)({
+  cors({
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true
   })
 );
-app.use(import_express3.default.json());
+app.use(express.json());
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,

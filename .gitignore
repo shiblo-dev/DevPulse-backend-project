@@ -1,6 +1,6 @@
 # env file
 .env
-
+dist
 # dependencies
 node_modules/
 .vercel
