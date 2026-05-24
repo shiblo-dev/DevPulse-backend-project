@@ -1,6 +1,6 @@
 import type { Response, NextFunction } from "express";
-import type { AuthRequest } from "../../types";
-import * as issueService from "./issue.service";
+import type { AuthRequest } from "../../types/index.js";
+import * as issueService from "./issue.service.js";
 
 export const createIssue = async (
   req: AuthRequest,

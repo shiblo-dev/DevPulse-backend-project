@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { pool } from "../../db";
-import config from "../../config";
-import AppError from "../../utils/AppError";
+import { pool } from "../../db/index.js";
+import config from "../../config/index.js";
+import AppError from "../../utils/AppError.js";
 
 const SALT_ROUNDS = 10;
 

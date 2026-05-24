@@ -1,5 +1,5 @@
-import { pool } from "../../db";
-import AppError from "../../utils/AppError";
+import { pool } from "../../db/index.js";
+import AppError from "../../utils/AppError.js";
 
 type IssueType = "bug" | "feature_request";
 type IssueStatus = "open" | "in_progress" | "resolved";

@@ -459,8 +459,16 @@ var deleteIssue2 = async (req, res, next) => {
 var router2 = Router2();
 router2.get("/", getAllIssues2);
 router2.get("/:id", getIssueById2);
-router2.post("/", auth_default(USER_ROLE.CONTRIBUTOR, USER_ROLE.MAINTAINER), createIssue2);
-router2.patch("/:id", auth_default(USER_ROLE.CONTRIBUTOR, USER_ROLE.MAINTAINER), updateIssue2);
+router2.post(
+  "/",
+  auth_default(USER_ROLE.CONTRIBUTOR, USER_ROLE.MAINTAINER),
+  createIssue2
+);
+router2.patch(
+  "/:id",
+  auth_default(USER_ROLE.CONTRIBUTOR, USER_ROLE.MAINTAINER),
+  updateIssue2
+);
 router2.delete("/:id", auth_default(USER_ROLE.MAINTAINER), deleteIssue2);
 var issueRoutes = router2;
 

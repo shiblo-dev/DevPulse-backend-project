@@ -1,6 +1,6 @@
 import type { Response, NextFunction } from "express";
-import type { AuthRequest } from "../../types";
-import { authService } from "./auth.service";
+import type { AuthRequest } from "../../types/index.js";
+import { authService } from "./auth.service.js";
 
 const registerUser = async (
   req: AuthRequest,
